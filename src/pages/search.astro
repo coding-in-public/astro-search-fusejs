@@ -88,7 +88,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 			// selectors
 			const search = document.querySelector("#search");
 			const searchReadout = document.querySelector("#searchReadout");
-			const searchResults = document.querySelector("#searchResults");
+			const resultsList = document.querySelector("#searchResults");
 
 			// functions
 			function updateDocumentTitle(search) {
@@ -103,9 +103,34 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 					: "";
 			}
 
+			function updateSearchPageURL(search) {
+				const url = new URL(window.location.href);
+				url.searchParams.set("q", search);
+				window.history.replaceState(null, "", url);
+			}
+
+			function generateSearchList(results) {
+				return results
+					.map((r) => {
+						const { title, date, slug } = r.item;
+						const dateAsDate = new Date(date);
+						return `<li>
+								<time datetime="${dateAsDate.toISOString()}">
+									${dateAsDate.toLocaleDateString("en-us", {
+										year: "numeric",
+										month: "short",
+										day: "numeric",
+									})}
+								</time>
+								<a href="/blog/${slug}/">${title}</a>
+							</li>`;
+					})
+					.join("");
+			}
+
 			async function fetchSearchResults(search) {
 				if (search.length === 0) return;
-				// searchResults.innerHTML = SPINNER;
+				resultsList.innerHTML = SPINNER;
 				if (!SEARCH_DATA) {
 					try {
 						const res = await fetch("/search.json");
@@ -123,7 +148,10 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 				}
 				if (!FUSE_INSTANCE) return;
 				const searchResult = FUSE_INSTANCE.search(search);
-				console.log("🚀 ~ fetchSearchResults ~ searchResult:", searchResult);
+				resultsList.innerHTML =
+					searchResult.length > 0
+						? generateSearchList(searchResult)
+						: "No results found…";
 			}
 
 			// event listeners
@@ -143,6 +171,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from "../consts";
 				updateDocumentTitle(searchTerm);
 				updateSearchReadout(searchTerm);
 				fetchSearchResults(searchTerm);
+				updateSearchPageURL(searchTerm);
 			});
 		</script>
 	</body>
