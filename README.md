@@ -14,3 +14,4 @@ In this series, we’ll cover:
 
 ## Key Links
 - Demo: https://codinginpublic.dev/projects/astro-search-fusejs/
+- YouTube Playlist: https://www.youtube.com/playlist?list=PLoqZcxvpWzzdlyJMZOGB5aYt8ImxzRxYs
